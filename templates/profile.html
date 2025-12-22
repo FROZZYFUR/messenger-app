@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Профиль</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="profile-page">
+    <div class="profile-card">
+
+<form action="/profile/update" method="post" enctype="multipart/form-data">
+    <label>Никнейм</label>
+    <input type="text" name="nickname" placeholder="Введите новый ник" required>
+
+    <label>Аватарка</label>
+    <input type="file" name="avatar">
+
+    <button type="submit">Сохранить изменения</button>
+</form>
+
+    </div>
+</div>
+<script>
+    // После отправки формы возвращаем пользователя в чаты
+    const form = document.querySelector("form");
+
+    if (form) {
+        form.addEventListener("submit", () => {
+            setTimeout(() => {
+                window.location.href = "/chats";
+            }, 300);
+        });
+    }
+</script>
+</body>
+</html>

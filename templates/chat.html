@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Чаты</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<div class="container">
+    <!-- Левое меню: список пользователей -->
+    <div class="sidebar">
+        <h2>Все пользователи</h2>
+        {% for user in users %}
+            {% if user != username %}
+            <a href="/chat/{{ user }}" class="user-box {% if users[user].get('online', False) %}online{% else %}offline{% endif %}">
+                {{ user }}
+            </a>
+            {% endif %}
+        {% endfor %}
+        <a href="#" class="profile-box" onclick="showProfileSoon(event)">
+    <div class="profile-avatar"></div>
+    <div class="profile-name">{{ username }}</div>
+</a>
+    </div>
+
+    <!-- Основная область: чат -->
+    <div class="chat-area">
+        {% if other_user %}
+            <h2>Чат с {{ other_user }}</h2>
+            <div class="messages">
+                {% for msg in messages %}
+    <div class="msg {% if msg.sender == username %}my-msg{% else %}other-msg{% endif %}">
+        {% if msg.type == "voice" %}
+            <b>{{ msg.sender }}:</b><br>
+            <audio controls>
+                <source src="/voice/{{ msg.file }}" type="audio/webm">
+            </audio>
+        {% else %}
+            <b>{{ msg.sender }}:</b> {{ msg.text }}
+        {% endif %}
+    </div>
+{% endfor %}
+<div class="send-wrapper">
+    <form action="/send_msg/{{ other_user }}" method="post" class="send-form">
+        <input type="text" name="text" placeholder="Введите сообщение..." required>
+        <button type="submit">➤</button>
+    </form>
+
+    <form action="/send_voice/{{ other_user }}" method="post" enctype="multipart/form-data" class="voice-form">
+        <input type="file" name="voice" accept="audio/*" required>
+        <button type="submit">🎤</button>
+    </form>
+</div>
+        {% else %}
+            <h2>Выберите пользователя, чтобы начать диалог</h2>
+        {% endif %}
+    </div>
+</div>
+<script>
+    let autoScroll = true;
+
+    const msgBox = document.querySelector('.messages');
+
+    // Проверяем, листает ли пользователь вручную
+    msgBox.addEventListener('scroll', () => {
+        const atBottom = msgBox.scrollHeight - msgBox.scrollTop <= msgBox.clientHeight + 10;
+        autoScroll = atBottom;
+    });
+
+    function updateMessages() {
+    if (document.activeElement.tagName === 'INPUT') return;
+
+    fetch(window.location.href)
+        .then(response => response.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const newMessages = doc.querySelector('.messages');
+
+            document.querySelector('.messages').innerHTML = newMessages.innerHTML;
+
+            if (autoScroll) {
+                msgBox.scrollTop = msgBox.scrollHeight;
+            }
+        });
+}
+
+    // обновление каждые 1 сек
+    setInterval(updateMessages, 1000);
+</script>
+</script>
+<script>
+function showProfileSoon(event) {
+    event.preventDefault();
+    alert("Профиль скоро будет доступен 🙂");
+}
+</script>
+</body>
+</html>
